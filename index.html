@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>SCOTUS Retirement</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script type="text/javascript" src="myScripts.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link href='https://fonts.googleapis.com/css?family=RobotoDraft' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"><style>
+    html,body,h1,h2,h3,h4,h5 {font-family: "RobotoDraft", "Roboto", sans-serif}
+    .w3-bar-block .w3-bar-item {padding: 16px}
+    </style>
+    <link rel="stylesheet" href="myStyle.css">
+  </head>
+  <body onload="initFunction()">
+    <!--
+    <button id="download-file">Display File</button>
+    <pre id="preview-text"></pre>
+    -->
+    <div style="display:flex ; flex-direction: row; align-items: center">
+      <div class="box" style="width:500px">
+        Replacement Rule Set
+        <br>
+        <label><input type="radio" name="ruleSet" id="ruleSetMax" onChange="selectRuleSet(this)"checked>Max Term</label>
+        <label><input type="radio" name="ruleSet" id="ruleSetRegular" onChange="selectRuleSet(this)" >Regular Replacement</label>
+        <button id="showRulesButton" class="button buttonNormal" onclick="toggleRuleDisplay()">Show Rules</button>
+      </div>
+      &nbsp;
+      <div class="box" style="width:500px" >
+        Resignation Rule Set
+        <br>
+        <label><input type="radio" name="resignRuleSet" id="resignRuleNew" onChange="selectResignRuleSet(this)" checked>New term</label>
+        <label><input type="radio" name="resignRuleSet" id="resignRuleComplete" onChange="selectResignRuleSet(this)" >Inherit term</label>
+      </div>
+    </div>
+    <div id="rules-display" hidden>
+      <h2>Common</h2>
+      Assignment is based on the years in the president has been in office, and the number of appointments already
+      made. All values are changable. The maximum number of appointments made in a year or a term are settable.
+      The minimum years in office before a forced retirement can be made is settable. Values for the current president
+      are displayed as <span class="buttonGreen">99</span> if the rule allows a forced assignment, <span class="buttonRed">
+      99</span> if the rule prevents a forced assignment.
+      <p>A justice can always be manually retired. The replacement justice counts towards a president's yearly and
+      term limits.
+      <h2>Rule sets</h2>
+      Assuming the common rules are met, the particular rules are checked:
+      <h4>Max Term</h4>
+      No one should serve forever on the court. If a justice has served more than max term length, he will be replaced.
+      <h4>Regular Replacement</h4>
+      There should be new blood on the court on a regular basis, which also prevents judges from serving for 
+      extended periods. The cycle time is the desired term maximum divided by the number of justices. Every time
+      a new justice is appointed (either resignation or automatic), the cycle restarts.
+      <p>The cycle length and next retirement date are displayed when this option is selected.
+    </div>
+    <pre id="stuff-area"></pre>
+    <div class="row">
+      <div class="column">
+        <span style="background-color:darkseagreen">
+          <input id="simDate" type="date" onchange="updateSimulationDate()" style="background-color:darkseagreen">
+          <label for="simDate">Current Simulation Date</label>
+        </span>
+        <br /><button id="advanceDateBtn" onclick="advanceDate()" class="button" style="background-color:darkGray">Advance Month</button>
+        <br />Speed in mSecs (1000=1 sec)
+        <br /><button id="simulation_slower" class="button buttonNormal tooltip" onclick="speedChange(this)"><< <span class="tooltiptext">Half Speed</span></button>
+        <input id="simulation_speed" type="number" size="4" onchange="speedChange(this)" value=1000>
+        <button id="simulation_faster" class="button tooltip" style="background-color:grey" onclick="speedChange(this)">>><span class="tooltiptext">Double Speed</span></button>
+        <button id="runSimulation" onclick="manageSimulation()" class = "button buttonGreen">Run Simulation</button>
+      </div>
+      <div class="column">
+        <div id="cycleValuesDisplay" hidden>
+          <span style="background-color:lightblue">
+            <input id="retireDate" type="date" onchange="updateRetirementDate()" style="background-color:lightblue">
+            <label for="retireDate">Next retirement date</label>
+          </span>
+          <br /><span id="cycleTimeDisplay" value="initial"></span>
+          <br />
+        </div>
+        <span style="background-color:lightblue">
+          Presidents years in office <span id="presidentYears" class="buttonGreen"></span>
+        </span>
+        <span style="background-color:pink">
+          Presidential appointments-Year:<span id="presidentAppointmentsYear" class="buttonGreen"></span>
+          &nbsp Term:<span id="presidentAppointmentsTerm" class="buttonGreen"></span>
+        </span>
+        <div class="row">
+          <div class="column">
+            Current president:<span id="presidentName"></span>
+          </div>
+          <div class="column">
+            <div class="box" style="width:190px">
+              Incumbent Reelection
+              <br><label><input type="radio" name="incumbentRelection" id="presAlways" onChange="presidentRelectionOption(this)">Always</label>
+              <br><label><input type="radio" name="incumbentRelection" id="presNever" onChange="presidentRelectionOption(this)">Never</label>
+              <br><label><input type="radio" name="incumbentRelection" id="presAsk" onChange="presidentRelectionOption(this)" checked>Ask</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex ; flex-direction: row; align-items: center">
+      <input id="justiceCount" onChange="setJusticeCount(this)" onLoad="setJusticeCount(this)" style="float:left" type="number" value="9" size="3">
+      <label for="courtSize">Court Size</label>
+      <input id="targetTerm" onChange="setTargetTermLength(this)" type="number" value="20" size="3">
+      <label for="targetTerm">Target Term Length</label>
+      <input id="maxYearAppointments" onChange="setMaxYearAppointments(this)" type="number" value="1" size="3">
+      <label for="maxYearAppointments">Max appointments per year</label>
+      <input id="maxTermAppointments" onChange="setMaxTermAppointments(this)" type="number" value="2" size="3">
+      <label for="maxTermAppointments">Max Appointments per Term</label>
+      <input id="requiredExperience" onChange="setRequiredExperience(this)" type="number" value="3" size="3">
+      <label for="requiredExperience">Experience Required</label>
+    </div>
+    <p id="demo"></p>
+    <div class="row">
+      <div class="column">
+        <h4>Current Justices</h4>
+        <p id="currentJustices"></p>
+        <div id="hideResignButtons" hidden>
+          <button id="clearAllJustices" onclick="clearAllJustices()" class="button buttonGreen">Clear Selection</button>
+          <button id="reassignAllJustices" onclick="replaceSelectedJustices()" class="button buttonRed"></button>
+        </div>
+      </div>
+      <div class="column">
+        <h4>Retired Justices</h4>
+        <p id="retiredJustices" class="fixTableHead"></p>
+    </div>
+  </body>
+</html>

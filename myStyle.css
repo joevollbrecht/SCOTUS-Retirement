@@ -1,0 +1,79 @@
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: 100%;
+  left: 50%;
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+.row {
+  display: flex;
+  //margin-left:-5px;
+  margin-right:-5px;
+}
+
+.column {
+  flex: 30%;
+  padding: 5px;
+}
+.box {
+/*  
+  width: 200px;
+  height: 100px;
+  padding: 10px;
+  margin: 10px;
+  */
+  border: 1px solid black;
+}
+ .button {
+  border: 2px solid black;
+  border-radius: 8px;
+  color: white;
+  /*padding: 15px 32px;*/
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+tr:nth-child(even) {
+  background-color: #D6EEEE;
+}
+table {
+  border: 1px solid black;
+  border-collapse: collapse;
+  width: 100%;
+}
+.fixTableHead {
+  overflow-y: auto;
+  height: 260px;
+}
+        
+.fixTableHead thead th {
+    position: sticky;
+    top: 0;
+}
+label {
+    padding-right: 40px;
+}
+
+.buttonGreen {background-color: green;} /* Green */
+.buttonRed {background-color: red;} /* Blue */
+.buttonNormal {background-color:grey;}
