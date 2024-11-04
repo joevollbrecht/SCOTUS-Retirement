@@ -5,6 +5,9 @@ let hideResignButtons = true;
 let isSimulationRunning = false;
 const justicesArray = [];
 const justicesRetiredArray = [];
+const justicesRetiredArraySorts = [];
+let justicesRetiredArraySortDirection="up";
+let justicesRetiredArraySortFunction="up";
 let justiceCount=0;
 let justiceSelectionCount = 0;
 let nextJusticeNumber = 0;
@@ -81,11 +84,32 @@ function initFunction() {
     setPresidentialYearsInOffice();
     setPresidentialAppointmentCount();
     initFile();
-    displayRetiredJustices();
     displayCurrentPresident();
     document.getElementById('maxTermAppointments').value = presidentMaxTermAppointments;
     document.getElementById('maxYearAppointments').value = presidentMaxYearAppointments;
     document.getElementById('requiredExperience').value = presidentMinimumExperience;
+
+    justicesRetiredArraySorts.push({name:"name",label:"Justice", up:function(a, b){return a.name>b.name?1:a.name<b.name?-1:0;},
+        down:function(a, b){return b.name>a.name?1:b.name<a.name?-1:0;}});
+    justicesRetiredArraySorts.push({name:"targetRetireDate",label:"Appointed",up:function(a, b){return a.targetRetireDate - b.targetRetireDate},
+        down:function(a, b){return b.targetRetireDate - a.targetRetireDate}});
+    justicesRetiredArraySorts.push({name:"appointedDate",label:"RetireTarget",up:function(a, b){return a.appointedDate - b.appointedDate},
+        down:function(a, b){return b.appointedDate - a.appointedDate}});
+    justicesRetiredArraySorts.push({name:"actualRetireDate",label:"Retire Actual",up:function(a, b){return a.actualRetireDate - b.actualRetireDate},
+        down:function(a, b){return b.actualRetireDate - a.actualRetireDate}});
+    justicesRetiredArraySorts.push({name:"termLength",label:"Term Length", up:function(a,b){
+            let aDate = formatDateDifference(a.appointedDate,a.actualRetireDate);
+            let bDate = formatDateDifference(b.appointedDate,b.actualRetireDate);
+            return aDate>bDate?1:aDate<bDate?-1:0;
+        }, down:function(a,b){
+            let aDate = formatDateDifference(a.appointedDate,a.actualRetireDate);
+            let bDate = formatDateDifference(b.appointedDate,b.actualRetireDate);
+            return bDate>aDate?1:bDate<aDate?-1:0
+
+        }
+    });
+    setRetiredJusticesSort("actualRetireDate");
+    displayRetiredJustices();
 }
 function setPresidentialYearsInOffice(){
     document.getElementById("presidentYears").innerText = presidentYearsInOffice;
@@ -147,9 +171,6 @@ function displayCurrentJustices(){
     for (let ii = 0; ii < justicesArray.length; ii++) {
         text += '<tr>';
         let cJustice = justicesArray[ii];
-        //let retireDate = new Date(cJustice.appointedDate.getTime());
-        //retireDate.setUTCFullYear(retireDate.getUTCFullYear()+ targetTerm);
-        //month = (cJustice.appointedDate.getMonth()+1);
         text += "<td><input type='checkbox' id='" + generateCheckBoxId(ii) +"' onchange=justiceSelected(this)></td>";
         text += "<td>" + cJustice.name + "</td>";
         text += '<td>' + formatYearMonth(cJustice.appointedDate) + "</td>";
@@ -160,17 +181,23 @@ function displayCurrentJustices(){
     document.getElementById("currentJustices").innerHTML = text;
 }
 function displayRetiredJustices(){
+    justicesRetiredArray.sort(justicesRetiredArraySortFunction);
     let text = "<table>";
-    text += "<thead>\
-        <tr>\
-            <th>Justice</th>\
-            <th>Appointed</th>\
-            <th>Retire Target</th>\
-            <th>Retire Actual</th>\
-            <th>Term Length</th>\
-        <tr>\
-    </thead>\
-    <tbody>"
+    text +="<thead><tr>";
+    for(let x=0;x<justicesRetiredArraySorts.length;x++){
+        let tempEntry = justicesRetiredArraySorts[x];
+        text+="<th onclick=\"setRetiredJusticesSort('"+tempEntry.name+"')\"";
+        if(tempEntry[justicesRetiredArraySortDirection]==justicesRetiredArraySortFunction){
+            text+=" style='color:blue'";
+        }
+        text += ">" + tempEntry.label;
+        if(tempEntry[justicesRetiredArraySortDirection]==justicesRetiredArraySortFunction){
+            text+="&nbsp;";
+            text+=(justicesRetiredArraySortDirection=="up")?"&uarr;":"&darr;";
+        }
+        text += "</th>";        
+    }
+    text += "</tr></thead><tbody>";
 
     for (let ii = 0; ii < justicesRetiredArray.length; ii++) {
         text += '<tr>';
@@ -184,6 +211,11 @@ function displayRetiredJustices(){
     }
     text += "</tbody></table>";
     document.getElementById("retiredJustices").innerHTML = text;
+}
+function setRetiredJusticesSort(column){
+    justicesRetiredArraySortDirection = justicesRetiredArraySortDirection=="up"?"down":"up";
+    justicesRetiredArraySortFunction  = justicesRetiredArraySorts.find(entry=> entry.name == column)[justicesRetiredArraySortDirection];
+    displayRetiredJustices();
 }
 function formatYearMonth(myDate){
     return myDate.getFullYear() + "-" + ('0' + (myDate.getMonth()+1)).slice(-2);
